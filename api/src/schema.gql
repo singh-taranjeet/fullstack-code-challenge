@@ -54,10 +54,12 @@ scalar DateTime
 
 type Query {
   Results: [Result!]!
+  result(id: ID!): Result!
 }
 
 type Mutation {
   createResult(createResultInput: CreateResultDto!): Result!
+  updateResult(id: ID!, updateResultInput: UpdateResultDto!): Result!
 }
 
 input CreateResultDto {
@@ -92,4 +94,13 @@ input BeginInputType {
 input MetadataInputType {
   description: String!
   severity: String!
+}
+
+input UpdateResultDto {
+  status: String
+  repositoryName: String
+  findings: [FindingsInputType!]
+  queuedAt: DateTime
+  scanningAt: DateTime
+  finishedAt: DateTime
 }
