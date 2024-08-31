@@ -60,6 +60,7 @@ type Query {
 type Mutation {
   createResult(createResultInput: CreateResultDto!): Result!
   updateResult(id: ID!, updateResultInput: UpdateResultDto!): Result!
+  removeResult(id: ID!): Result!
 }
 
 input CreateResultDto {

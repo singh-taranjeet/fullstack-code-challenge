@@ -27,9 +27,7 @@ export class ResultService {
       ...updateResultInput,
     });
 
-    if (!existingResult) {
-      throw new UserInputError(`Result with id ${id} not found`);
-    }
+    this.validateResult(existingResult, id);
 
     return this.resultRepository.save(existingResult);
   }
@@ -39,10 +37,22 @@ export class ResultService {
       where: { id },
     });
 
+    this.validateResult(result, id);
+
+    return result;
+  }
+
+  async remove(id: number) {
+    const result = await this.findOne(id);
+
+    this.validateResult(result, id);
+
+    return this.resultRepository.remove(result);
+  }
+
+  private validateResult(result: Result, id: number) {
     if (!result) {
       throw new UserInputError(`Result with id ${id} not found`);
     }
-
-    return result;
   }
 }

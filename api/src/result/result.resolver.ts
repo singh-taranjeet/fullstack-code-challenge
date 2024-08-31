@@ -31,4 +31,9 @@ export class ResultResolver {
   ) {
     return this.resultService.update(id, updateResultInput);
   }
+
+  @Mutation(() => Result, { name: 'removeResult' })
+  async remove(@Args('id', { type: () => ID }, ParseIntPipe) id: number) {
+    return this.resultService.remove(id);
+  }
 }
