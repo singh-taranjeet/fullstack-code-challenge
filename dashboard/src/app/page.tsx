@@ -6,12 +6,107 @@ import FormControl from "@mui/material/FormControl";
 import Select from "@mui/material/Select";
 import ControlPointIcon from "@mui/icons-material/ControlPoint";
 import IconButton from "@mui/material/IconButton";
-import { Button, Modal, TextField, Typography } from "@mui/material";
+import { Badge, Button, Modal, TextField, Typography } from "@mui/material";
 import { DateTimePicker } from "@mui/x-date-pickers/DateTimePicker";
 import { useState } from "react";
-import { CreateField } from "./components/CreateField";
+import CloseIcon from "@mui/icons-material/Close";
+import SearchIcon from "@mui/icons-material/Search";
+import { CreateFinding } from "./components/CreateFinding";
+import {
+  FindingProperyType,
+  FindingState,
+  FindingType,
+  ResultState,
+} from "./types";
+
 export default function Home() {
   const [open, setOpen] = useState(false);
+
+  const [result, setResult] = useState<ResultState | undefined>();
+  function updateResult(
+    property: ProperyType,
+    value: ResultState[ProperyType]
+  ) {
+    setResult((prev) => {
+      return {
+        ...prev,
+        [property]: value,
+      };
+    });
+  }
+
+  const [finding, setFinding] = useState<FindingState | undefined>();
+
+  function updateFinding(
+    property: FindingProperyType,
+    value: FindingState[FindingProperyType]
+  ) {
+    setFinding((prev) => {
+      return {
+        ...prev,
+        [property]: value,
+      };
+    });
+  }
+
+  function onAddFinding(finding: FindingType) {
+    const index = result?.findings?.findIndex((f) => f.id === finding.id);
+
+    if (index === -1 || index === undefined) {
+      setResult((prev) => {
+        return {
+          ...prev,
+          findings: [...(prev?.findings || []), finding],
+        };
+      });
+    } else {
+      // if finding of ruleId already exists, update the finding
+      setResult((prev) => {
+        return {
+          ...prev,
+          findings:
+            prev?.findings?.map((f, i) => {
+              if (i === index) {
+                return finding;
+              }
+              return f;
+            }) || [],
+        };
+      });
+    }
+    setFinding(undefined);
+  }
+
+  function setFindingEdit(finding: FindingType) {
+    setFinding({
+      id: finding.id,
+      type: finding.type,
+      ruleId: finding.ruleId,
+      path: finding.location.path,
+      line: finding.location.positions.begin.line,
+      description: finding.metadata.description,
+      severity: finding.metadata.severity,
+    });
+    openModal();
+  }
+
+  function openModal() {
+    setOpen(true);
+  }
+
+  function modalClose() {
+    setOpen(false);
+    setFinding(undefined);
+  }
+
+  function removeFinding(id: number) {
+    setResult((prev) => {
+      return {
+        ...prev,
+        findings: prev?.findings?.filter((f) => f.id !== id),
+      };
+    });
+  }
 
   return (
     <section className="w-full max-w-xs mx-auto my-10 flex flex-col justify-between gap-5">
@@ -26,13 +121,16 @@ export default function Home() {
               <Select
                 id="scan-status-select"
                 labelId="scan-status"
-                value={"f"}
+                value={result?.status || ""}
                 label="Scan status"
-                //onChange={handleChange}
+                onChange={(e) =>
+                  updateResult("status", e.target.value as string)
+                }
               >
-                <MenuItem value={10}>Ten</MenuItem>
-                <MenuItem value={20}>Twenty</MenuItem>
-                <MenuItem value={30}>Thirty</MenuItem>
+                <MenuItem value={"Queued"}>Queued</MenuItem>
+                <MenuItem value={"In Progress"}>In Progress</MenuItem>
+                <MenuItem value={"Success"}>Success</MenuItem>
+                <MenuItem value={"Failure"}>Failure</MenuItem>
               </Select>
             </FormControl>
           </div>
@@ -42,26 +140,73 @@ export default function Home() {
               id="scan-repository-name"
               label="Repository name"
               variant="outlined"
+              value={result?.repositoryName || ""}
+              onChange={(e) => updateResult("repositoryName", e.target.value)}
             />
           </FormControl>
 
-          <div onClick={() => setOpen(true)} className="cursor-pointer">
-            <span>Add fields</span>
-            <IconButton>
-              <ControlPointIcon />
-            </IconButton>
+          <div>
+            <div className="flex flex-wrap">
+              {result?.findings?.map((finding) => (
+                <div key={finding.id} className="py-2">
+                  <Badge
+                    badgeContent={
+                      <div
+                        className="cursor-pointer bg-white rounded-full border"
+                        title="remove"
+                        onClick={() => removeFinding(finding.id)}
+                      >
+                        <CloseIcon />
+                      </div>
+                    }
+                  >
+                    <div
+                      className="flex gap-1 px-3 py-2 border rounded "
+                      onClick={() => setFindingEdit(finding)}
+                    >
+                      <SearchIcon></SearchIcon>
+                      <span>{finding.ruleId}</span>
+                    </div>
+                  </Badge>
+                </div>
+              ))}
+            </div>
+            <div onClick={() => setOpen(true)} className="cursor-pointer">
+              <span>Add fields</span>
+              <IconButton>
+                <ControlPointIcon />
+              </IconButton>
+            </div>
           </div>
 
           <FormControl fullWidth>
-            <DateTimePicker label="QueuedAt" />
+            <DateTimePicker
+              onChange={(newValue) =>
+                updateResult("queuedAt", newValue || undefined)
+              }
+              value={result?.queuedAt}
+              label="QueuedAt"
+            />
           </FormControl>
 
           <FormControl fullWidth>
-            <DateTimePicker label="ScanningAt" />
+            <DateTimePicker
+              onChange={(newValue) =>
+                updateResult("scanningAt", newValue || undefined)
+              }
+              value={result?.scanningAt}
+              label="ScanningAt"
+            />
           </FormControl>
 
           <FormControl fullWidth>
-            <DateTimePicker label="FinishedAt" />
+            <DateTimePicker
+              onChange={(newValue) =>
+                updateResult("finishedAt", newValue || undefined)
+              }
+              value={result?.finishedAt}
+              label="FinishedAt"
+            />
           </FormControl>
 
           <div className="flex items-end justify-end">
@@ -74,7 +219,7 @@ export default function Home() {
 
       <Modal
         open={open}
-        onClose={() => setOpen(false)}
+        onClose={modalClose}
         aria-labelledby="modal-modal-title"
         aria-describedby="modal-modal-description"
       >
@@ -82,7 +227,12 @@ export default function Home() {
           <Typography id="modal-modal-title" variant="h6" component="h2">
             Create a new field
           </Typography>
-          <CreateField />
+          <CreateFinding
+            finding={finding}
+            updateFinding={updateFinding}
+            onAdd={onAddFinding}
+            onClose={modalClose}
+          />
         </Box>
       </Modal>
     </section>
