@@ -78,7 +78,7 @@ export function CreateFinding(props: Props) {
           <Typography>Positions : begin</Typography>
           <FormControl fullWidth>
             <TextField
-              onChange={(e) => updateFinding("line", e.target.value as string)}
+              onChange={(e) => updateFinding("line", Number(e.target.value))}
               value={finding?.line}
               type="number"
               label="Line"

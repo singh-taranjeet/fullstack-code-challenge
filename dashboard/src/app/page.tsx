@@ -18,9 +18,25 @@ import {
   FindingType,
   ResultState,
 } from "./types";
+import { gql, useMutation } from "@apollo/client";
+
+const CreateResultScanQuery = gql`
+  mutation CreateResult($createResultInput: CreateResultDto!) {
+    createResult(createResultInput: $createResultInput) {
+      status
+      repositoryName
+      queuedAt
+      scanningAt
+      finishedAt
+      id
+    }
+  }
+`;
 
 export default function Home() {
   const [open, setOpen] = useState(false);
+
+  const [createResultsScanMutation] = useMutation(CreateResultScanQuery);
 
   const [result, setResult] = useState<ResultState | undefined>();
   function updateResult(
@@ -75,6 +91,30 @@ export default function Home() {
       });
     }
     setFinding(undefined);
+  }
+
+  function createResult() {
+    createResultsScanMutation({
+      variables: {
+        createResultInput: {
+          status: result?.status,
+          repositoryName: result?.repositoryName,
+          queuedAt: result?.queuedAt,
+          scanningAt: result?.scanningAt,
+          finishedAt: result?.finishedAt,
+          findings: result?.findings?.map((f) => {
+            return {
+              ...f,
+              id: undefined,
+            };
+          }), // remove id from finding
+        },
+      },
+      onCompleted: (data) => {
+        alert("Result created successfully");
+        setResult(undefined);
+      },
+    });
   }
 
   function setFindingEdit(finding: FindingType) {
@@ -210,7 +250,7 @@ export default function Home() {
           </FormControl>
 
           <div className="flex items-end justify-end">
-            <Button type="submit" variant="contained">
+            <Button variant="contained" onClick={createResult}>
               Submit
             </Button>
           </div>

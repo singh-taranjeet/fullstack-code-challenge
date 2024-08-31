@@ -3,6 +3,7 @@ import { Inter } from "next/font/google";
 import "./globals.css";
 import { Metadata } from "next";
 import { Container } from "./components/Container";
+import { ApolloClientProvider } from "./Providers/ApolloClientProvider";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -22,7 +23,7 @@ export default function RootLayout({
         <main className="m-auto max-w-screen-md">
           <AppRouterCacheProvider>
             <Container>
-              <>{children}</>
+              <ApolloClientProvider>{children}</ApolloClientProvider>
             </Container>
           </AppRouterCacheProvider>
         </main>
