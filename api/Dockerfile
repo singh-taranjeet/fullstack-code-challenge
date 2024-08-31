@@ -6,6 +6,6 @@ RUN npm install
 COPY . .
 RUN npm run build
 ENV NODE_ENV production
-EXPOSE 5555
-ENV PORT 5555
-CMD ["npm","run", "start"]
+EXPOSE 6000
+ENV PORT 6000
+CMD ["npm","run", "start:prod"]
