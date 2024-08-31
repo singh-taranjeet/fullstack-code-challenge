@@ -1,0 +1,107 @@
+# ------------------------------------------------------
+# THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
+# ------------------------------------------------------
+
+type BeginObjectType {
+  line: Float!
+}
+
+type PositionsObjectType {
+  begin: BeginObjectType!
+}
+
+type LocationObjectType {
+  path: String!
+  positions: PositionsObjectType!
+}
+
+type MetadataObjectType {
+  description: String!
+  severity: String!
+}
+
+type FindingsObjectType {
+  type: String!
+  ruleId: String!
+  location: LocationObjectType!
+  metadata: MetadataObjectType!
+}
+
+"""A result entity"""
+type Result {
+  """Status of the scan"""
+  status: String!
+
+  """Name of the respository"""
+  repositoryName: String!
+  findings: [FindingsObjectType!]!
+
+  """The date and time when the result was queued"""
+  queuedAt: DateTime
+
+  """The date and time when the result was scanned"""
+  scanningAt: DateTime
+
+  """The date and time when the result was finished"""
+  finishedAt: DateTime
+  id: Float!
+}
+
+"""
+A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date-time format.
+"""
+scalar DateTime
+
+type Query {
+  Results: [Result!]!
+  result(id: ID!): Result!
+}
+
+type Mutation {
+  createResult(createResultInput: CreateResultDto!): Result!
+  updateResult(id: ID!, updateResultInput: UpdateResultDto!): Result!
+  removeResult(id: ID!): Result!
+}
+
+input CreateResultDto {
+  status: String!
+  repositoryName: String!
+  findings: [FindingsInputType!]!
+  queuedAt: DateTime
+  scanningAt: DateTime
+  finishedAt: DateTime
+}
+
+input FindingsInputType {
+  type: String!
+  ruleId: String!
+  location: LocationInputType!
+  metadata: MetadataInputType!
+}
+
+input LocationInputType {
+  path: String!
+  positions: PositionsInputType!
+}
+
+input PositionsInputType {
+  begin: BeginInputType!
+}
+
+input BeginInputType {
+  line: Float!
+}
+
+input MetadataInputType {
+  description: String!
+  severity: String!
+}
+
+input UpdateResultDto {
+  status: String
+  repositoryName: String
+  findings: [FindingsInputType!]
+  queuedAt: DateTime
+  scanningAt: DateTime
+  finishedAt: DateTime
+}
