@@ -19,15 +19,11 @@ import {
   ResultState,
 } from "./types";
 import { gql, useMutation } from "@apollo/client";
+import { Result } from "postcss";
 
 const CreateResultScanQuery = gql`
   mutation CreateResult($createResultInput: CreateResultDto!) {
     createResult(createResultInput: $createResultInput) {
-      status
-      repositoryName
-      queuedAt
-      scanningAt
-      finishedAt
       id
     }
   }
@@ -149,13 +145,13 @@ export default function Home() {
   }
 
   return (
-    <section className="w-full max-w-xs mx-auto my-10 flex flex-col justify-between gap-5">
+    <section className="w-full mx-auto my-10 flex flex-col justify-between gap-5 px-5 sm:p-0">
       <Typography variant="h1" fontSize={"20px"} className="text-left mx-auto">
         Submit a scan result
       </Typography>
-      <Box className="shadow rounded">
-        <form className="p-5 flex flex-col gap-2">
-          <div className="mb-4">
+      <Box className="border rounded">
+        <form className="p-5 flex flex-col justify-between gap-5">
+          <div className="sm:grid grid-cols-2  gap-5 flex flex-col">
             <FormControl fullWidth>
               <InputLabel id="scan-status-select">Scan status</InputLabel>
               <Select
@@ -173,81 +169,54 @@ export default function Home() {
                 <MenuItem value={"Failure"}>Failure</MenuItem>
               </Select>
             </FormControl>
+
+            <FormControl>
+              <TextField
+                id="scan-repository-name"
+                label="Repository name"
+                variant="outlined"
+                value={result?.repositoryName || ""}
+                onChange={(e) => updateResult("repositoryName", e.target.value)}
+              />
+            </FormControl>
+
+            <Findings
+              removeFinding={removeFinding}
+              result={result}
+              onAddField={openModal}
+              setFindingEdit={setFindingEdit}
+            />
+
+            <FormControl>
+              <DateTimePicker
+                onChange={(newValue) =>
+                  updateResult("queuedAt", newValue || undefined)
+                }
+                value={result?.queuedAt}
+                label="QueuedAt"
+              />
+            </FormControl>
+
+            <FormControl>
+              <DateTimePicker
+                onChange={(newValue) =>
+                  updateResult("scanningAt", newValue || undefined)
+                }
+                value={result?.scanningAt}
+                label="ScanningAt"
+              />
+            </FormControl>
+
+            <FormControl>
+              <DateTimePicker
+                onChange={(newValue) =>
+                  updateResult("finishedAt", newValue || undefined)
+                }
+                value={result?.finishedAt}
+                label="FinishedAt"
+              />
+            </FormControl>
           </div>
-
-          <FormControl fullWidth>
-            <TextField
-              id="scan-repository-name"
-              label="Repository name"
-              variant="outlined"
-              value={result?.repositoryName || ""}
-              onChange={(e) => updateResult("repositoryName", e.target.value)}
-            />
-          </FormControl>
-
-          <div>
-            <div className="flex flex-wrap">
-              {result?.findings?.map((finding) => (
-                <div key={finding.id} className="py-2">
-                  <Badge
-                    badgeContent={
-                      <div
-                        className="cursor-pointer bg-white rounded-full border"
-                        title="remove"
-                        onClick={() => removeFinding(finding.id)}
-                      >
-                        <CloseIcon />
-                      </div>
-                    }
-                  >
-                    <div
-                      className="flex gap-1 px-3 py-2 border rounded "
-                      onClick={() => setFindingEdit(finding)}
-                    >
-                      <SearchIcon></SearchIcon>
-                      <span>{finding.ruleId}</span>
-                    </div>
-                  </Badge>
-                </div>
-              ))}
-            </div>
-            <div onClick={() => setOpen(true)} className="cursor-pointer">
-              <span>Add fields</span>
-              <IconButton>
-                <ControlPointIcon />
-              </IconButton>
-            </div>
-          </div>
-
-          <FormControl fullWidth>
-            <DateTimePicker
-              onChange={(newValue) =>
-                updateResult("queuedAt", newValue || undefined)
-              }
-              value={result?.queuedAt}
-              label="QueuedAt"
-            />
-          </FormControl>
-
-          <FormControl fullWidth>
-            <DateTimePicker
-              onChange={(newValue) =>
-                updateResult("scanningAt", newValue || undefined)
-              }
-              value={result?.scanningAt}
-              label="ScanningAt"
-            />
-          </FormControl>
-
-          <FormControl fullWidth>
-            <DateTimePicker
-              onChange={(newValue) =>
-                updateResult("finishedAt", newValue || undefined)
-              }
-              value={result?.finishedAt}
-              label="FinishedAt"
-            />
-          </FormControl>
 
           <div className="flex items-end justify-end">
             <Button variant="contained" onClick={createResult}>
@@ -276,5 +245,51 @@ export default function Home() {
         </Box>
       </Modal>
     </section>
+  );
+}
+
+function Findings(props: {
+  result?: ResultState;
+  removeFinding: (id: number) => void;
+  setFindingEdit: (finding: FindingType) => void;
+  onAddField(): void;
+}) {
+  const { result, removeFinding, setFindingEdit, onAddField } = props;
+
+  return (
+    <div>
+      {result?.findings?.length ? <Typography>Added fields</Typography> : null}
+      <div className="flex flex-wrap gap-2">
+        {result?.findings?.map((finding) => (
+          <div key={finding.id} className="py-2">
+            <Badge
+              badgeContent={
+                <div
+                  className="cursor-pointer bg-white rounded-full border"
+                  title="remove"
+                  onClick={() => removeFinding(finding.id)}
+                >
+                  <CloseIcon />
+                </div>
+              }
+            >
+              <div
+                className="flex gap-1 px-3 py-2 border rounded "
+                onClick={() => setFindingEdit(finding)}
+              >
+                <SearchIcon></SearchIcon>
+                <span>{finding.ruleId}</span>
+              </div>
+            </Badge>
+          </div>
+        ))}
+      </div>
+      <div onClick={onAddField} className="cursor-pointer">
+        <span>Add fields</span>
+        <IconButton>
+          <ControlPointIcon />
+        </IconButton>
+      </div>
+    </div>
   );
 }
