@@ -21,7 +21,7 @@ import {
 } from "./types";
 import { gql, useMutation } from "@apollo/client";
 
-const CreateResultScanQuery = gql`
+export const CreateResultScanQuery = gql`
   mutation CreateResult($createResultInput: CreateResultDto!) {
     createResult(createResultInput: $createResultInput) {
       id
@@ -153,11 +153,12 @@ export default function Home() {
         <form className="p-5 flex flex-col justify-between gap-5">
           <div className="sm:grid grid-cols-2  gap-5 flex flex-col">
             <FormControl fullWidth>
-              <InputLabel id="scan-status-select">Scan status</InputLabel>
+              <InputLabel id="scan-status-select-label">Scan status</InputLabel>
               <Select
                 id="scan-status-select"
-                labelId="scan-status"
+                labelId="scan-status-select-label"
                 value={result?.status || ""}
+                inputProps={{ "data-testid": "scan-status-select" }}
                 label="Scan status"
                 onChange={(e) =>
                   updateResult("status", e.target.value as string)
@@ -285,8 +286,8 @@ function ResultFindings(props: {
         ))}
       </div>
       <div onClick={onAddField} className="cursor-pointer">
-        <span>Add fields</span>
-        <IconButton>
+        <span>Add finding</span>
+        <IconButton aria-label="Add finding">
           <ControlPointIcon />
         </IconButton>
       </div>
