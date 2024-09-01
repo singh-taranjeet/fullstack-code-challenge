@@ -39,7 +39,7 @@ export default function Results() {
   }
 
   return (
-    <div className="flex flex-col gap-5">
+    <div className="flex flex-col gap-5 mx-5">
       {selectedScan ? (
         <div className="flex gap-2 items-center">
           <IconButton onClick={() => setSelectedScan(undefined)}>

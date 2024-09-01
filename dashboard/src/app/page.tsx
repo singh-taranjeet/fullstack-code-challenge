@@ -128,9 +128,27 @@ export default function Home() {
         }, 3000);
       },
       onError: (error) => {
-        console.error(error);
+        function removeUnwantedMessage(message: string) {
+          const newmsg = message
+            .replace(`Variable "$createResultInput" got invalid value {};`, "")
+            .replace(`of required type "[FindingsInputType!]!"`, "")
+            .replace(`of required type "String!"`, "");
+
+          if (
+            newmsg.includes(
+              `Variable "$createResultInput" got invalid value {};`
+            ) ||
+            newmsg.includes(`of required type "String!"`)
+          ) {
+            return removeUnwantedMessage(newmsg);
+          }
+          return newmsg;
+        }
+
+        const message = removeUnwantedMessage(error.message);
+
         setMessage({
-          message: "Error in creating result",
+          message,
           type: "error",
         });
         setTimeout(() => {
@@ -173,11 +191,11 @@ export default function Home() {
 
   return (
     <section className="w-full mx-auto my-10 flex flex-col justify-between gap-5 px-5 sm:p-0">
-      <Typography variant="h1" fontSize={"20px"} className="text-left mx-auto">
+      <Typography variant="h1" fontSize={"20px"} className="text-left sm:pl-5">
         Submit a scan result
       </Typography>
 
-      <Box className="border rounded">
+      <Box className="border rounded sm:mx-5">
         <form className="p-5 flex flex-col justify-between gap-5">
           <div className="sm:grid grid-cols-2  gap-5 flex flex-col">
             <FormControl fullWidth>
@@ -256,7 +274,11 @@ export default function Home() {
       </Box>
 
       {message ? (
-        <Alert icon={<CheckIcon fontSize="inherit" />} severity={message.type}>
+        <Alert
+          icon={message.type === "success" ? <CheckIcon /> : <CloseIcon />}
+          className="mx-5"
+          severity={message.type}
+        >
           {message.message}
         </Alert>
       ) : null}
@@ -267,7 +289,7 @@ export default function Home() {
         aria-labelledby="modal-modal-title"
         aria-describedby="modal-modal-description"
       >
-        <Box className="bg-white max-w-fit m-auto mt-2.5 rounded p-5">
+        <Box className="bg-white sm:max-w-lg sm:mx-auto rounded p-5 m-5">
           <Typography id="modal-modal-title" variant="h6" component="h2">
             Create a new field
           </Typography>
