@@ -6,12 +6,20 @@ import FormControl from "@mui/material/FormControl";
 import Select from "@mui/material/Select";
 import ControlPointIcon from "@mui/icons-material/ControlPoint";
 import IconButton from "@mui/material/IconButton";
-import { Badge, Button, Modal, TextField, Typography } from "@mui/material";
+import {
+  Alert,
+  Badge,
+  Button,
+  Modal,
+  TextField,
+  Typography,
+} from "@mui/material";
 import { DateTimePicker } from "@mui/x-date-pickers/DateTimePicker";
 import { useState } from "react";
 import CloseIcon from "@mui/icons-material/Close";
 import SearchIcon from "@mui/icons-material/Search";
 import { CreateFinding } from "./components/CreateFinding";
+import CheckIcon from "@mui/icons-material/Check";
 import {
   FindingProperyType,
   FindingState,
@@ -21,7 +29,7 @@ import {
 } from "./types";
 import { gql, useMutation } from "@apollo/client";
 
-export const CreateResultScanQuery = gql`
+const CreateResultScanQuery = gql`
   mutation CreateResult($createResultInput: CreateResultDto!) {
     createResult(createResultInput: $createResultInput) {
       id
@@ -33,6 +41,9 @@ export default function Home() {
   const [open, setOpen] = useState(false);
 
   const [createResultsScanMutation] = useMutation(CreateResultScanQuery);
+  const [message, setMessage] = useState<
+    { message: string; type: "error" | "success" } | undefined
+  >();
 
   const [result, setResult] = useState<ResultState | undefined>();
   function updateResult(
@@ -107,8 +118,24 @@ export default function Home() {
         },
       },
       onCompleted: (data) => {
-        alert("Result created successfully");
         setResult(undefined);
+        setMessage({
+          message: "Result created successfully",
+          type: "success",
+        });
+        setTimeout(() => {
+          setMessage(undefined);
+        }, 3000);
+      },
+      onError: (error) => {
+        console.error(error);
+        setMessage({
+          message: "Error in creating result",
+          type: "error",
+        });
+        setTimeout(() => {
+          setMessage(undefined);
+        }, 3000);
       },
     });
   }
@@ -149,6 +176,7 @@ export default function Home() {
       <Typography variant="h1" fontSize={"20px"} className="text-left mx-auto">
         Submit a scan result
       </Typography>
+
       <Box className="border rounded">
         <form className="p-5 flex flex-col justify-between gap-5">
           <div className="sm:grid grid-cols-2  gap-5 flex flex-col">
@@ -226,6 +254,12 @@ export default function Home() {
           </div>
         </form>
       </Box>
+
+      {message ? (
+        <Alert icon={<CheckIcon fontSize="inherit" />} severity={message.type}>
+          {message.message}
+        </Alert>
+      ) : null}
 
       <Modal
         open={open}
