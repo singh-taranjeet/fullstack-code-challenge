@@ -1,9 +1,9 @@
 version: "3"
 services:
-  # dashboard:
-  #   build: ./dashboard
-  #   ports:
-  #     - "3000:3000"
+  dashboard:
+    build: ./dashboard
+    ports:
+      - "3000:3000"
   db:
     image: postgres:latest
     volumes:
@@ -15,7 +15,7 @@ services:
   api:
     build: ./api
     ports:
-      - "6000:6000"
+      - "4000:4000"
     depends_on:
       - db
 volumes:
