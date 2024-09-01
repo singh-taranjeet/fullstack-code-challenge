@@ -129,20 +129,30 @@ export default function Home() {
       },
       onError: (error) => {
         function removeUnwantedMessage(message: string) {
-          const newmsg = message
-            .replace(`Variable "$createResultInput" got invalid value {};`, "")
-            .replace(`of required type "[FindingsInputType!]!"`, "")
-            .replace(`of required type "String!"`, "");
-
+          const msg: string[] = [];
           if (
-            newmsg.includes(
-              `Variable "$createResultInput" got invalid value {};`
-            ) ||
-            newmsg.includes(`of required type "String!"`)
+            message.includes(
+              `Field "status" of required type "String!" was not provided`
+            )
           ) {
-            return removeUnwantedMessage(newmsg);
+            msg.push(`Scan Status is required`);
           }
-          return newmsg;
+          if (
+            message.includes(
+              `Field "repositoryName" of required type "String!" was not provided`
+            )
+          ) {
+            msg.push(`Repository Name is required`);
+          }
+          if (
+            message.includes(
+              `Field "findings" of required type "[FindingsInputType!]!" was not provided.`
+            )
+          ) {
+            msg.push(`Findings is required`);
+          }
+
+          return msg.join(", ");
         }
 
         const message = removeUnwantedMessage(error.message);
