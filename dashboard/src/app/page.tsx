@@ -19,7 +19,6 @@ import {
   ResultState,
 } from "./types";
 import { gql, useMutation } from "@apollo/client";
-import { Result } from "postcss";
 
 const CreateResultScanQuery = gql`
   mutation CreateResult($createResultInput: CreateResultDto!) {
@@ -180,7 +179,7 @@ export default function Home() {
               />
             </FormControl>
 
-            <Findings
+            <ResultFindings
               removeFinding={removeFinding}
               result={result}
               onAddField={openModal}
@@ -248,7 +247,7 @@ export default function Home() {
   );
 }
 
-function Findings(props: {
+function ResultFindings(props: {
   result?: ResultState;
   removeFinding: (id: number) => void;
   setFindingEdit: (finding: FindingType) => void;
