@@ -42,7 +42,7 @@ export function CreateFinding(props: Props) {
     if (!finding) {
       updateFinding("id", new Date().getTime());
     }
-  }, [finding]);
+  }, [finding, updateFinding]);
 
   return (
     <section className="py-2 flex flex-col gap-5">

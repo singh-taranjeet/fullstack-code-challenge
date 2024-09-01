@@ -16,6 +16,7 @@ import {
   FindingProperyType,
   FindingState,
   FindingType,
+  ProperyType,
   ResultState,
 } from "./types";
 import { gql, useMutation } from "@apollo/client";
