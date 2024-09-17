@@ -1,7 +1,8 @@
 import { Field, InputType } from '@nestjs/graphql';
-import { IsArray, IsEnum, MinLength, ValidateNested } from 'class-validator';
+import { IsEnum, IsOptional, MinLength } from 'class-validator';
 import { StatusType } from 'src/result/types';
 import { FindingsInputType } from './findings.dto';
+import { Type } from 'class-transformer';
 
 @InputType()
 export class CreateResultDto {
@@ -14,16 +15,18 @@ export class CreateResultDto {
   repositoryName: string;
 
   @Field(() => [FindingsInputType])
-  @IsArray()
-  @ValidateNested({ each: true })
+  @IsOptional()
   findings: FindingsInputType[];
 
   @Field(() => Date, { nullable: true })
+  @IsOptional()
   queuedAt: Date;
 
   @Field(() => Date, { nullable: true })
+  @IsOptional()
   scanningAt: Date;
 
   @Field(() => Date, { nullable: true })
+  @IsOptional()
   finishedAt: Date;
 }
